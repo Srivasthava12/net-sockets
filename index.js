@@ -4,6 +4,8 @@ let counter = 0;
 
 let sockets = {}
 
+//TODO: MD file
+
 server.on('connection', (socket) => {
     socket.id = counter++
     sockets[socket.id] = socket
