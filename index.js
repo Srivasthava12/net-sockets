@@ -1,10 +1,18 @@
 const server = require('net').createServer();
+const fs = require('fs');
+const path = require('path');
 
 let counter = 0;
 
 let sockets = {}
 
+const fileName = `chat_log_${new Date().toDateString()}.txt`
+const fileNamePath = path.join('chat_logs', fileName)
+const writeStream = fs.createWriteStream(fileNamePath);
+
 //TODO: MD file
+
+
 
 server.on('connection', (socket) => {
     socket.id = counter++
@@ -14,9 +22,10 @@ server.on('connection', (socket) => {
 
     socket.on('data', data => {
         for (const [id, sock] of Object.entries(sockets)) {
-            if (id === socket.id) return;
-            sock.write(`\n${socket.id}  : `);
-            sock.write(data)
+            if (id === socket.id) {return};
+            const message = `\n${socket.id}  :  ${data}`
+            sock.write(message);
+            writeStream.write(message)
         }
     })
 
@@ -24,7 +33,12 @@ server.on('connection', (socket) => {
         delete sockets[socket.id];
         console.log("Client disconnected");
     })
+    writeStream.on('error', function (err) {
+        console.log(err);
+    });
 })
 
 
-server.listen(4000, () => console.log("Server listing"))
+server.listen(4000, () => {
+    console.log("Server listing")
+})
